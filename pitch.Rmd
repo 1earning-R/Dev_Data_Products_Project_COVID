@@ -66,7 +66,7 @@ county_pop <- pop_data[pop_data$CTYNUM != 0, c("County",
 state_pop <- pop_data[pop_data$CTYNUM == 0, c("State", 
                                               "Population")]
 
-## Create a key to combine pop data with covid data
+## Create a common key to combine pop data with county level covid data
 county_pop$Combine_Key <- apply(county_pop[,c("County","State")], 
                                 1, 
                                 prep_com_key)
@@ -75,6 +75,7 @@ reports$Combine_Key <- apply(reports[,c("County","State")],
                              1,
                              prep_com_key)
 
+## Merge covid and population data sets
 county_data <- merge(reports,
                      county_pop[,c("Combine_Key",
                                    "Population")])
@@ -84,6 +85,7 @@ state_data <- merge(st_totals,
 ```
 
 ```{r final prep}
+## Divide by population to find per capita indicators
 state_data$Deaths.per.capita <- state_data$Deaths / state_data$Population
 state_data$Confirmed.per.capita <- state_data$Confirmed / state_data$Population
 state_data$Active.per.capita <- state_data$Active / state_data$Population
@@ -92,15 +94,22 @@ county_data$Deaths.per.capita <- county_data$Deaths / county_data$Population
 county_data$Confirmed.per.capita <- county_data$Confirmed / county_data$Population
 county_data$Active.per.capita <- county_data$Active / county_data$Population
 
+## Add Name variable to display on hover
 state_data$Name <- state_data$State
 county_data$Name <- county_data$County
 
-
+## Add state codes for selecting states to map
 State <- names(State_Codes)
 county_data <- merge(county_data, cbind(State,State_Codes))
+
+## Filter county data to relevant columns for map application
 county_data <- county_data[,c("Name","State_Codes","LatLong","Population","Date",
                               "Confirmed","Deaths","Active",
                               "Confirmed.per.capita","Deaths.per.capita","Active.per.capita")]
+
+```
+
+```{r write data sets, eval=FALSE}
 write.csv(county_data, "data/covid_data/data_sets/county_data2.csv")
 write.csv(state_data, "data/covid_data/data_sets/state_data2.csv")
 ```
@@ -139,7 +148,7 @@ coronavirus in the U.S. with the following features:
 ## DATA
 
 The coronavirus data for the project came from the
-[COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19) 
+[COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) 
 maintained by the Johns Hopkins University Center for Systems Science and
 Engineering (JHU CSSE).
 JHU CSSE uses this data to operate the 
@@ -150,3 +159,4 @@ The population data for the project came from the
 Specifically, 2019 population estimates were used from the data set available
 [here](https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/counties/totals/co-est2019-alldata.csv).
 
+The code used to process these data sets is embedded in the R Markdown file that produced this presentation. It is available [here](https://github.com/1earning-R/Dev_Data_Products_Project_COVID/blob/master/pitch.Rmd).
