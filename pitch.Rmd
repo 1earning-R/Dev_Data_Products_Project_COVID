@@ -1,0 +1,152 @@
+---
+title: "Course Project"
+subtitle: "U.S. SARS-COV-2 Map Application"
+author: "Eric Smith"
+date: "7/21/2020"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+
+source("scripts/strsplit_i.R")
+source("scripts/get_report.R")
+source("scripts/prep_combined_key.R")
+source("scripts/calc_Active.R")
+source("data/geo_data/state_codes.R")
+library(dplyr)
+library(ggplot2)
+```
+
+```{r covid data, message=FALSE}
+report_dir <- "data/covid_data/county_reports/"
+file_names <- list.files(report_dir,
+                         full.names = TRUE)
+
+## Compile COVID reports into one data frame
+reports <- do.call(rbind,
+                   lapply(file_names, get_report))
+
+## Summarize data into US and State totals by date
+us_totals <- reports %>%
+        select(Date, Deaths, Confirmed, Recovered) %>%
+        group_by(Date) %>%
+        summarize(Deaths = sum(Deaths),
+                  Confirmed = sum(Confirmed),
+                  Recovered = sum(Recovered))
+st_totals <- reports %>%
+        select(Date, State, Deaths, Confirmed, Recovered) %>%
+        group_by(Date, State) %>%
+        summarize(Deaths = sum(Deaths),
+                  Confirmed = sum(Confirmed),
+                  Recovered = sum(Recovered))
+
+st_totals$Active <- with(st_totals, 
+                         calc_Active(Confirmed, Deaths, Recovered))
+reports$Active <- with(reports, 
+                       calc_Active(Confirmed, Deaths, Recovered))
+
+```
+
+```{r pop data, message=FALSE}
+data_fld <- "data/population_data/"
+
+## Read population data and select relevant variables:
+pop_data <- read.csv(paste0(data_fld, "co-est2019-alldata.csv"))
+pop_data <- pop_data %>%
+        transmute(CTYNUM = COUNTY,
+                  State = STNAME,
+                  County = CTYNAME,
+                  Population = POPESTIMATE2019)
+
+## Divide population data set into county and state data sets
+county_pop <- pop_data[pop_data$CTYNUM != 0, c("County", 
+                                               "State", 
+                                               "Population")]
+state_pop <- pop_data[pop_data$CTYNUM == 0, c("State", 
+                                              "Population")]
+
+## Create a key to combine pop data with covid data
+county_pop$Combine_Key <- apply(county_pop[,c("County","State")], 
+                                1, 
+                                prep_com_key)
+
+reports$Combine_Key <- apply(reports[,c("County","State")],
+                             1,
+                             prep_com_key)
+
+county_data <- merge(reports,
+                     county_pop[,c("Combine_Key",
+                                   "Population")])
+state_data <- merge(st_totals,
+                    state_pop)
+
+```
+
+```{r final prep}
+state_data$Deaths.per.capita <- state_data$Deaths / state_data$Population
+state_data$Confirmed.per.capita <- state_data$Confirmed / state_data$Population
+state_data$Active.per.capita <- state_data$Active / state_data$Population
+
+county_data$Deaths.per.capita <- county_data$Deaths / county_data$Population
+county_data$Confirmed.per.capita <- county_data$Confirmed / county_data$Population
+county_data$Active.per.capita <- county_data$Active / county_data$Population
+
+state_data$Name <- state_data$State
+county_data$Name <- county_data$County
+
+
+State <- names(State_Codes)
+county_data <- merge(county_data, cbind(State,State_Codes))
+county_data <- county_data[,c("Name","State_Codes","LatLong","Population","Date",
+                              "Confirmed","Deaths","Active",
+                              "Confirmed.per.capita","Deaths.per.capita","Active.per.capita")]
+write.csv(county_data, "data/covid_data/data_sets/county_data2.csv")
+write.csv(state_data, "data/covid_data/data_sets/state_data2.csv")
+```
+## BACKGROUND
+### SARS-COV-2 in the United States
+
+SARS-COV-2 is the name for the coronavirus that causes the deadly disease COVID-19.
+Its spread through the United States began in early 2020 and continues today.
+The prevalence and spread of the virus in the country have varied widely from
+region to region due, in part, to political and demographic differences between States.
+Comparing trends by region will be an important strategy in making effective
+policy decisions throughout the remainder of the outbreak.
+
+## BACKGROUND
+### Deaths in the United States
+
+```{r, fig.height=3.25}
+g_us <- ggplot(us_totals, aes(x = Date, y = Deaths / 1000))
+g_us + geom_line(size = 1.5, color = hcl(h=195,l=65,c=100)) +
+        ylab("Deaths in Thousands") + xlab("") + 
+        theme(text = element_text(size = 18))
+```
+
+Despite efforts to curb U.S. coronavirus deaths at 100,000, deaths continued to climb steadily throughout June and early July, approaching 150,000.
+
+## PROJECT
+### U.S. COVID-19 Map Application
+
+The goal of this project is to create a visualization of the spread of
+coronavirus in the U.S. with the following features:
+
+- A "snapshot" of the virus' spread at a date selected by the user
+- Ability to toggle between *total* and *per capita* cases or deaths
+- Adjustable scale such that the user can view the entire U.S. or sub-regions
+
+## DATA
+
+The coronavirus data for the project came from the
+[COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19) 
+maintained by the Johns Hopkins University Center for Systems Science and
+Engineering (JHU CSSE).
+JHU CSSE uses this data to operate the 
+[2019 Novel Coronavirus Visual Dashboard](https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6).
+
+The population data for the project came from the
+[United States Census Bureau](census.gov).
+Specifically, 2019 population estimates were used from the data set available
+[here](https://www2.census.gov/programs-surveys/popest/datasets/2010-2019/counties/totals/co-est2019-alldata.csv).
+
