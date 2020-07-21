@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+data/covid_data/**
+old_scripts/**
+pitch_cache/**
+data/covid_data/data_sets/state_data.csv
+data/covid_data/data_sets/county_data.csv
