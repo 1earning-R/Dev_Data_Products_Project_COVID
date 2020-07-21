@@ -13,13 +13,13 @@ source("scripts/strsplit_i.R")
 source("scripts/get_report.R")
 source("scripts/prep_combined_key.R")
 source("scripts/calc_Active.R")
-source("data/geo_data/state_codes.R")
+source("geo_data/state_codes.R")
 library(dplyr)
 library(ggplot2)
 ```
 
 ```{r covid data, message=FALSE}
-report_dir <- "data/covid_data/county_reports/"
+report_dir <- "covid_data/county_reports/"
 file_names <- list.files(report_dir,
                          full.names = TRUE)
 
@@ -49,7 +49,7 @@ reports$Active <- with(reports,
 ```
 
 ```{r pop data, message=FALSE}
-data_fld <- "data/population_data/"
+data_fld <- "population_data/"
 
 ## Read population data and select relevant variables:
 pop_data <- read.csv(paste0(data_fld, "co-est2019-alldata.csv"))
@@ -110,8 +110,8 @@ county_data <- county_data[,c("Name","State_Codes","LatLong","Population","Date"
 ```
 
 ```{r write data sets, eval=FALSE}
-write.csv(county_data, "data/covid_data/data_sets/county_data2.csv")
-write.csv(state_data, "data/covid_data/data_sets/state_data2.csv")
+write.csv(county_data, "data_sets/county_data2.csv")
+write.csv(state_data, "data_sets/state_data2.csv")
 ```
 ## BACKGROUND
 ### SARS-COV-2 in the United States

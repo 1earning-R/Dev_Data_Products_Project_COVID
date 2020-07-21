@@ -5,9 +5,9 @@ account: ericeliassmith
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2558744
-bundleId: 3391614
+bundleId: 3418367
 url: https://ericeliassmith.shinyapps.io/Course_Project/
-when: 1594743798.60875
+when: 1595361320.57623
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .RData|old.R
+ignoredFiles: .RData|pitch.html|pitch.Rmd|data_sets/county_data.csv|data_sets/state_data.csv|pitch_files/figure-html/pressure-1.png|pitch_files/figure-html/unnamed-chunk-1-1.png|pitch_files/figure-html/unnamed-chunk-2-1.png|population_data/co-est2019-alldata.csv|scripts/calc_Active.R|scripts/get_report.R|scripts/prep_combined_key.R|scripts/strsplit_i.R|covid_data|old_scripts

@@ -1,10 +1,10 @@
 library(shiny)
 library(googleVis)
 
-source("data/geo_data/state_codes.R")
+source("geo_data/state_codes.R")
 
-county_data <- read.csv("data/covid_data/data_sets/county_data2.csv")
-state_data <- read.csv("data/covid_data/data_sets/state_data2.csv")
+county_data <- read.csv("data_sets/county_data2.csv")
+state_data <- read.csv("data_sets/state_data2.csv")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
