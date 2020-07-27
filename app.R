@@ -3,50 +3,42 @@ library(googleVis)
 
 source("data/geo_data/state_codes.R")
 
-county_data <- read.csv("data/covid_data/data_sets/county_data2.csv")
-state_data <- read.csv("data/covid_data/data_sets/state_data2.csv")
+county_data <- read.csv("data_sets/county_data.csv")
+state_data <- read.csv("data_sets/state_data.csv")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
         
         # Application title
-        titlePanel("SARS-COV-2 in the United States"),
+        titlePanel("Daily Snapshots of SARS-COV-2 in the United States"),
         
         # Sidebar with a slider input for number of bins 
         sidebarLayout(
                 sidebarPanel(
-                        h3("User Inputs"),
-                        p("This interactive map can display four different",
-                          " indicators of SARS-COV-2's spread within the ",
-                          "United States and its sub-regions."),
-                        br(),
                         h4("Date Options:"),
-                        p("The spread of the virus can be observed by ",
-                          "adjusting the date using the slider below."),
+                        p("The spread of the virus at a previous date ",
+                          "can be observed by ",
+                          "adjusting the slider below."),
                         
                         sliderInput("date",
                                     label = NULL,
                                     min = as.Date("2020-04-15"),
-                                    max = as.Date("2020-07-12"),
-                                    value = as.Date("2020-04-15"),
+                                    max = as.Date("2020-07-25"),
+                                    value = as.Date("2020-07-25"),
                                     timeFormat = "%Y-%m-%d",
-                                    animate = TRUE
+                                    ticks = FALSE
                         ),
                         br(),
                         h4("Indicator Options:"),
-                        p("The four indicators available in the drop-down ",
-                          "menu are as follows:"),
-                        tags$ol(tags$li("Total Deaths to date"),
-                                tags$li("Total Deaths to date per capita"),
-                                tags$li("Total Confirmed Cases to date"),
-                                tags$li("Total Confirmed Cases to date per ",
-                                        "capita")),
-                        p("As the name implies, the data shown on the map are ",
+                        p("Four indicators are available in the drop-down ",
+                          "menu."),
+                        p("As their names imply, the indicators show ",
                           tags$i("total "),
                           "deaths and ",
                           tags$i("total"),
                           "cases for a given region tallied from the beginning ",
-                          "of the outbreak until the date selected by the user."),
+                          "of the outbreak until the date selected by the user."
+                        ),
                         br(),
                         selectInput("var",
                                     label = NULL,
@@ -57,40 +49,27 @@ ui <- fluidPage(
                                                 "Total Confirmed Cases" = 
                                                         "Confirmed",
                                                 "Confirmed Cases per capita" = 
-                                                        "Confirmed.per.capita",
-                                                "Total Active Cases" = 
-                                                        "Active",
-                                                "Active Cases per capita" = 
-                                                        "Active.per.capita")
+                                                        "Confirmed.per.capita"
+                                    )
                         ),
                         br(),
                         h4("Map Options:"),
-                        p("The user may also wish to see a sub-region of the ",
-                          "United States.",
-                          "Any of the 50 States as well as the ",
-                          "Washington-Douglass Capital Region may be selected ",
-                          "from the drop-down menu.",
-                          "The map will not be updated until the ",
+                        p("To switch the map to a sub-region of the United States ",
+                          "select a region from the drop-down menu then click the ",
                           tags$i("Change Map"),
-                          " action button is clicked."),
+                          " action button."),
                         br(),
                         p("Changing the map to view a sub-region will display ",
-                          "data from individual counties and cities indicated by markers scaled to show population size.",
-                          "The user may observe the name of the county or city ",
-                          "by hovering the mouse over the appropriate marker on the map."),
+                          "data from individual counties and cities indicated by markers scaled to show population size."),
                         br(),
-                        p("Finally, the user may also wish to compare the data ",
-                          "in a State to its neighboring States.",
-                          "To do so, the user may select the ", 
+                        p("The ", 
                           tags$i("Show Neighboring States"),
-                          " checkbox and update the map using the ",
-                          tags$i("Change Map"),
-                          " action button.",
-                          "This will display counties and cities of neighboring ",
+                          " checkbox ",
+                          "will display counties and cities of neighboring ",
                           "States that are within the window of the State's map.",
-                          "Note that this will also rescale the population and ",
-                          "color of counties and cities to the largest values ",
-                          "among the adjacent States whether that value is ",
+                          "Note that this will also rescale the size and ",
+                          "color of the markers to the largest values ",
+                          "among all adjacent States whether that value is ",
                           "shown on the map or not."),
                         br(),
                         br(),
@@ -106,7 +85,19 @@ ui <- fluidPage(
                 
                 # Show a plot of the generated distribution
                 mainPanel(
-                        htmlOutput("view")
+                        htmlOutput("view"),
+                        p(
+                                "Data from",
+                                a("JHU CSSE COVID-19 Data", 
+                                  href = "https://github.com/CSSEGISandData/COVID-19"),
+                                "and",
+                                a("US Census Bureau.",
+                                  href = "https://www.census.gov/data/tables/time-series/demo/popest/2010s-counties-total.html")
+                        ),
+                        p(
+                                a("More information about this project.",
+                                  href = "https://1earning-r.github.io/Dev_Data_Products_Project_COVID/pitch.html")
+                        )
                 )
         )
 )
@@ -149,8 +140,8 @@ server <- function(input, output) {
                              options = list(region=region(),
                                             resolution = resolution(),
                                             displayMode = displayMode(),
-                                            height = 760,
-                                            width = 1200,
+                                            height = 570,
+                                            width = 900,
                                             keepAspectRatio = TRUE
                              )
                 )

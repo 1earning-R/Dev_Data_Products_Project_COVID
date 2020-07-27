@@ -1,5 +1,5 @@
 ---
-title: "Course Project"
+title: "Developing Data Products"
 subtitle: "U.S. SARS-COV-2 Map Application"
 author: "Eric Smith"
 date: "7/21/2020"
@@ -19,7 +19,7 @@ library(ggplot2)
 ```
 
 ```{r covid data, message=FALSE}
-report_dir <- "data/covid_data/county_reports/"
+report_dir <- "covid_data/county_reports/"
 file_names <- list.files(report_dir,
                          full.names = TRUE)
 
@@ -110,8 +110,8 @@ county_data <- county_data[,c("Name","State_Codes","LatLong","Population","Date"
 ```
 
 ```{r write data sets, eval=FALSE}
-write.csv(county_data, "data/covid_data/data_sets/county_data2.csv")
-write.csv(state_data, "data/covid_data/data_sets/state_data2.csv")
+write.csv(county_data, "data_sets/county_data.csv")
+write.csv(state_data, "data_sets/state_data.csv")
 ```
 ## BACKGROUND
 ### SARS-COV-2 in the United States
@@ -124,30 +124,36 @@ Comparing trends by region will be an important strategy in making effective
 policy decisions throughout the remainder of the outbreak.
 
 ## BACKGROUND
-### Deaths in the United States
+
 
 ```{r, fig.height=3.25}
 g_us <- ggplot(us_totals, aes(x = Date, y = Deaths / 1000))
 g_us + geom_line(size = 1.5, color = hcl(h=195,l=65,c=100)) +
-        ylab("Deaths in Thousands") + xlab("") + 
-        theme(text = element_text(size = 18))
+        ylab("Thousands of Deaths") + xlab("") + 
+        ggtitle("Cumulative Coronavirus Deaths in the U.S.") +
+        theme(text = element_text(size = 17), 
+              axis.text.x = element_text(angle = 30)) +
+        scale_x_date(date_breaks = "3 weeks",
+                     date_labels = "%b-%d")
 ```
 
-Despite efforts to curb U.S. coronavirus deaths at 100,000, deaths continued to climb steadily throughout June and early July, approaching 150,000.
+Despite efforts to curb the impact of the virus, deaths continued to climb steadily throughout June and July. The toll has now nearly reached 150,000 deaths.
 
 ## PROJECT
 ### U.S. COVID-19 Map Application
 
-The goal of this project is to create a visualization of the spread of
-coronavirus in the U.S. with the following features:
+The goal of this project is to create an R Shiny App with
+the following features:
 
 - A "snapshot" of the virus' spread at a date selected by the user
 - Ability to toggle between *total* and *per capita* cases or deaths
 - Adjustable scale such that the user can view the entire U.S. or sub-regions
 
+The app is available [here](https://ericeliassmith.shinyapps.io/Course_Project/).
+
 ## DATA
 
-The coronavirus data for the project came from the
+The coronavirus indicator data for the project came from the
 [COVID-19 Data Repository](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports) 
 maintained by the Johns Hopkins University Center for Systems Science and
 Engineering (JHU CSSE).
